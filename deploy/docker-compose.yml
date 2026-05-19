@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  dns-shield:
+    build: ..
+    container_name: dns-shield
+    restart: unless-stopped
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+      - "853:853/tcp"    # DNS-over-TLS
+      - "8080:8080/tcp"  # REST API / health
+    volumes:
+      - ../configs:/app/configs:ro
+      - ./tls:/etc/dns-shield/tls:ro
+      - blocklist_cache:/app/blocklists
+    environment:
+      - SHIELD_ADMIN_TOKEN=${SHIELD_ADMIN_TOKEN}
+      - TZ=America/Toronto
+    cap_add:
+      - NET_BIND_SERVICE   # bind ports <1024 without root
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  blocklist_cache:

@@ -1,0 +1,110 @@
+resolver:
+  listen_addr: "0.0.0.0:53"
+  dot_addr: "0.0.0.0:853"
+  doh_path: "/dns-query"
+  tls_cert: "/etc/dns-shield/tls/cert.pem"
+  tls_key: "/etc/dns-shield/tls/key.pem"
+  read_timeout: 5s
+  upstreams:
+    - "9.9.9.9:53"           # Quad9 — privacy-respecting, Canadian PoPs
+    - "149.112.112.112:53"   # Quad9 secondary
+    - "1.1.1.1:53"           # Cloudflare fallback
+
+filter:
+  block_page: "0.0.0.0"     # Return this IP for blocked A queries (empty = NXDOMAIN)
+  categories:
+    - phishing
+    - malware
+    - scam
+    - porn
+    - gambling
+    - predatory
+    - deepfake
+    - sextortion
+  allowlist:
+    - "canada.ca"
+    - "gc.ca"
+
+api:
+  listen_addr: "0.0.0.0:8080"
+  # admin_token loaded from env: SHIELD_ADMIN_TOKEN
+
+blocklists:
+  data_dir: "./blocklists"
+  refresh_every: 24h
+  feeds:
+
+    # ── PHISHING ──────────────────────────────────────────────────────────
+    - name: "PhishTank"
+      url: "https://data.phishtank.com/data/online-valid.csv"
+      category: phishing
+      format: domains
+      enabled: true
+
+    - name: "OpenPhish"
+      url: "https://openphish.com/feed.txt"
+      category: phishing
+      format: domains
+      enabled: true
+
+    - name: "PhishingArmy Extended"
+      url: "https://phishing.army/download/phishing_army_blocklist_extended.txt"
+      category: phishing
+      format: domains
+      enabled: true
+
+    # ── MALWARE ───────────────────────────────────────────────────────────
+    - name: "URLhaus Hosts"
+      url: "https://urlhaus.abuse.ch/downloads/hostfile/"
+      category: malware
+      format: hosts
+      enabled: true
+
+    - name: "Hagezi Pro"
+      url: "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/domains/pro.txt"
+      category: malware
+      format: domains
+      enabled: true
+
+    # ── SCAM ──────────────────────────────────────────────────────────────
+    - name: "ScamBlocker"
+      url: "https://raw.githubusercontent.com/durablenapkin/scamblocklist/master/hosts.txt"
+      category: scam
+      format: hosts
+      enabled: true
+
+    # ── ADULT / PORN ──────────────────────────────────────────────────────
+    - name: "StevenBlack Adult"
+      url: "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn/hosts"
+      category: porn
+      format: hosts
+      enabled: true
+
+    # ── GAMBLING ──────────────────────────────────────────────────────────
+    - name: "Gambling Block"
+      url: "https://raw.githubusercontent.com/nicehash/nicehash-antivirus-lists/master/gambling.txt"
+      category: gambling
+      format: domains
+      enabled: true
+
+    # ── PREDATORY / CHILD SAFETY ──────────────────────────────────────────
+    - name: "CleanBrowsing Family"
+      url: "https://download.cleanbrowsing.org/domains/blocked-family.txt"
+      category: predatory
+      format: domains
+      enabled: true
+
+    # ── DEEPFAKE / HARMFUL AI ─────────────────────────────────────────────
+    # NOTE: host your own list at this URL or replace with a real feed
+    - name: "Deepfake Sites"
+      url: "https://raw.githubusercontent.com/dns-shield/community-lists/main/deepfake.txt"
+      category: deepfake
+      format: domains
+      enabled: false
+
+    # ── SEXTORTION ────────────────────────────────────────────────────────
+    - name: "Sextortion Domains"
+      url: "https://raw.githubusercontent.com/dns-shield/community-lists/main/sextortion.txt"
+      category: sextortion
+      format: domains
+      enabled: false

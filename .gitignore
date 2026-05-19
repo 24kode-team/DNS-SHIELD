@@ -1,0 +1,6 @@
+.env
+bin/
+blocklists/*.txt
+tls/
+*.pem
+*.key
