@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/dns-shield/shield/internal/blocklist"
-	"github.com/dns-shield/shield/internal/config"
-	"github.com/dns-shield/shield/internal/filter"
-	"github.com/dns-shield/shield/internal/metrics"
+	"github.com/24kode-team/DNS-SHIELD/internal/blocklist"
+	"github.com/24kode-team/DNS-SHIELD/internal/config"
+	"github.com/24kode-team/DNS-SHIELD/internal/filter"
+	"github.com/24kode-team/DNS-SHIELD/internal/metrics"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"

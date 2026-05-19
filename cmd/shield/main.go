@@ -6,12 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/dns-shield/shield/internal/api"
-	"github.com/dns-shield/shield/internal/blocklist"
-	"github.com/dns-shield/shield/internal/config"
-	"github.com/dns-shield/shield/internal/filter"
-	"github.com/dns-shield/shield/internal/metrics"
-	"github.com/dns-shield/shield/internal/resolver"
+	"github.com/24kode-team/DNS-SHIELD/internal/api"
+	"github.com/24kode-team/DNS-SHIELD/internal/blocklist"
+	"github.com/24kode-team/DNS-SHIELD/internal/config"
+	"github.com/24kode-team/DNS-SHIELD/internal/filter"
+	"github.com/24kode-team/DNS-SHIELD/internal/metrics"
+	"github.com/24kode-team/DNS-SHIELD/internal/resolver"
 	"go.uber.org/zap"
 )
 

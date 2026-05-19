@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	"github.com/dns-shield/shield/internal/api/profiles"
+	"github.com/24kode-team/DNS-SHIELD/internal/api/profiles"
 	"github.com/gofiber/fiber/v2"
 )
 

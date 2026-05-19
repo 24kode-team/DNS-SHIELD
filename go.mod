@@ -1,4 +1,4 @@
-module github.com/dns-shield/shield
+module github.com/24kode-team/DNS-SHIELD
 
 go 1.22
 

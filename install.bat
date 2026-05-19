@@ -9,7 +9,7 @@ set "CONFIG_DIR=C:\ProgramData\DNS-SHIELD"
 set "DATA_DIR=C:\ProgramData\DNS-SHIELD\blocklists"
 set "LOG_DIR=C:\ProgramData\DNS-SHIELD\logs"
 set "BIN=%INSTALL_DIR%\dns-shield.exe"
-set "REPO=https://github.com/dns-shield/shield"
+set "REPO=https://github.com/24kode-team/DNS-SHIELD"
 
 echo.
 echo  ================================================
@@ -55,7 +55,7 @@ if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
 
 :: Download binary
 echo [4/6] Downloading dns-shield.exe...
-set "DL_URL=%REPO%/releases/download/%VERSION%/dns-shield_windows_%ARCH%.zip"
+set "DL_URL=https://github.com/24kode-team/DNS-SHIELD/releases/download/%VERSION%/dns-shield_windows_%ARCH%.zip"
 curl -fsSL "%DL_URL%" -o "%TEMP%\dns-shield.zip"
 if %errorLevel% neq 0 (
     echo [ERROR] Download failed. Check internet connection.

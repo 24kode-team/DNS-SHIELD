@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # DNS-SHIELD Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/dns-shield/shield/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/24kode-team/DNS-SHIELD/main/install.sh | sudo bash
 
 set -euo pipefail
 
@@ -13,7 +13,7 @@ success() { echo -e "${GREEN}[DNS-SHIELD]${RESET} $*"; }
 warn()    { echo -e "${YELLOW}[DNS-SHIELD]${RESET} $*"; }
 error()   { echo -e "${RED}[DNS-SHIELD]${RESET} $*" >&2; exit 1; }
 
-REPO="https://github.com/dns-shield/shield"
+REPO="https://github.com/24kode-team/DNS-SHIELD"
 INSTALL_DIR="/opt/dns-shield"
 BIN_DIR="/usr/local/bin"
 CONFIG_DIR="/etc/dns-shield"
@@ -52,7 +52,7 @@ check_deps() {
 
 # ── Get latest release version ─────────────────────────────────────────────────
 get_latest_version() {
-  VERSION=$(curl -fsSL "https://api.github.com/repos/dns-shield/shield/releases/latest" \
+  VERSION=$(curl -fsSL "https://api.github.com/repos/24kode-team/DNS-SHIELD/releases/latest" \
     | grep '"tag_name"' | sed 's/.*"tag_name": *"\(.*\)".*/\1/')
   [[ -n "$VERSION" ]] || VERSION="v1.0.0"
   info "Installing DNS-SHIELD $VERSION"

@@ -3,7 +3,7 @@ package filter
 import (
 	"strings"
 
-	"github.com/dns-shield/shield/internal/config"
+	"github.com/24kode-team/DNS-SHIELD/internal/config"
 	"go.uber.org/zap"
 )
 

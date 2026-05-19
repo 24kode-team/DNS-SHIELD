@@ -5,9 +5,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/dns-shield/shield/internal/config"
-	"github.com/dns-shield/shield/internal/filter"
-	"github.com/dns-shield/shield/internal/metrics"
+	"github.com/24kode-team/DNS-SHIELD/internal/config"
+	"github.com/24kode-team/DNS-SHIELD/internal/filter"
+	"github.com/24kode-team/DNS-SHIELD/internal/metrics"
 	"github.com/miekg/dns"
 	"go.uber.org/zap"
 )
