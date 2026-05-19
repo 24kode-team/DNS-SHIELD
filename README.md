@@ -192,7 +192,10 @@ DNS-SHIELD/
 - [x] One-command installer (Linux/macOS/Windows)
 - [ ] Kubernetes Helm chart
 - [ ] Anycast setup (Canadian PoPs)
-- [ ] iOS .mobileconfig profile generator
+- [x] iOS .mobileconfig profile generator
+- [x] Android Private DNS (DoT) setup
+- [x] Windows PowerShell installer
+- [x] Linux shell installer
 - [ ] CCCS / CRTC compliance documentation
 
 ---
