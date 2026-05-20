@@ -97,17 +97,12 @@ func (s *Server) handleSetupAndroid(c *fiber.Ctx) error {
 }
 
 // ── Setup page ────────────────────────────────────────────────────────────────
-
-func (s *Server) handleSetupPage(c *fiber.Ctx) error {
-	host, ip, doh := s.serverAddrs(c)
-	c.Set("Content-Type", "text/html; charset=utf-8")
-	return c.SendString(setupPageHTML(host, ip, doh, c.BaseURL()))
-}
+// handleSetupPage is defined in setup_page.go
 
 // serverAddrs extracts server host, IP, and DoH URL from the request.
 func (s *Server) serverAddrs(c *fiber.Ctx) (host, ip, doh string) {
 	host = c.Hostname()
-	ip = host // in production, replace with actual public IP
+	ip = host
 	doh = fmt.Sprintf("%s/dns-query", c.BaseURL())
 	return
 }
