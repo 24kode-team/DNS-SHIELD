@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNS-SHIELD — Setup</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --green: #00ff88;
+    --red: #ff4757;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 0.75rem; }
+  .logo { font-size: 1.2rem; font-weight: 700; }
+  .back { margin-left: auto; font-size: 0.82rem; color: var(--muted); text-decoration: none; }
+  .back:hover { color: var(--accent); }
+  main { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+  h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2.5rem; }
+  .platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 2.5rem; }
+  .platform-btn {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 12px; padding: 1.25rem 0.75rem;
+    cursor: pointer; text-align: center; transition: all 0.15s; color: var(--text);
+  }
+  .platform-btn:hover, .platform-btn.active { border-color: var(--accent); background: var(--surface2); }
+  .platform-name { font-size: 0.82rem; font-weight: 600; }
+  .steps-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .steps-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+  .steps-header .title { font-size: 1rem; font-weight: 700; }
+  .steps-header .desc { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+  .steps { padding: 1.5rem; }
+  .step { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--accent);
+    color: #000; font-weight: 700; font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .step-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--accent); color: #000; font-weight: 700;
+    font-size: 0.9rem; padding: 0.75rem 1.5rem; border-radius: 8px;
+    text-decoration: none; margin-top: 0.75rem; transition: opacity 0.15s;
+  }
+  .dl-btn:hover { opacity: 0.85; }
+  .dl-btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+  .dl-btn-secondary:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+  .revert { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .revert-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.75rem; }
+  .copy-field { display: flex; align-items: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 0.75rem; }
+  .copy-field-value { flex: 1; padding: 0.65rem 1rem; font-family: monospace; font-size: 0.9rem; color: var(--accent); word-break: break-all; }
+  .copy-field-btn { padding: 0.65rem 1rem; background: transparent; border: none; border-left: 1px solid var(--border); color: var(--muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; transition: color 0.15s; }
+  .copy-field-btn:hover { color: var(--accent); }
+  .notice { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--muted); margin-top: 1rem; line-height: 1.5; }
+  .platform-section { display: none; }
+  .platform-section.active { display: block; }
+  code { background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
+</style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:1.4rem">S</span>
+  <span class="logo">DNS-SHIELD</span>
+  <a class="back" href="/">Back to Dashboard</a>
+</header>
+
+<main>
+  <h1>Connect Your Device</h1>
+  <p class="subtitle">Choose your platform. Download and run. No App Store. No account. Remove anytime.</p>
+
+  <div class="platforms">
+    <div class="platform-btn active" onclick="showPlatform('ios', this)"><div class="platform-name">iPhone / iPad</div></div>
+    <div class="platform-btn" onclick="showPlatform('macos', this)"><div class="platform-name">Mac</div></div>
+    <div class="platform-btn" onclick="showPlatform('windows', this)"><div class="platform-name">Windows</div></div>
+    <div class="platform-btn" onclick="showPlatform('android', this)"><div class="platform-name">Android</div></div>
+    <div class="platform-btn" onclick="showPlatform('linux', this)"><div class="platform-name">Linux</div></div>
+    <div class="platform-btn" onclick="showPlatform('router', this)"><div class="platform-name">Router</div></div>
+  </div>
+
+  <div class="steps-panel">
+
+    <!-- iOS -->
+    <div class="platform-section active" id="section-ios">
+      <div class="steps-header"><div class="title">iPhone &amp; iPad</div><div class="desc">One-tap install via Apple Configuration Profile</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Download the profile on your iPhone or iPad</div>
+          <a class="dl-btn" href="{{SETUP_BASE}}/ios">Download for iPhone / iPad</a>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Allow and install</div>
+          <div class="step-desc">Tap <strong>Allow</strong>, then go to <strong>Settings &rarr; General &rarr; VPN &amp; Device Management &rarr; DNS-SHIELD &rarr; Install</strong>.</div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Done — active on Wi-Fi and cellular</div>
+          <div class="step-desc">All eight categories are blocked automatically.</div>
+        </div></div>
+        <div class="revert">
+          <div class="revert-title">Remove / Revert to Default</div>
+          <div class="step-desc"><strong>Settings &rarr; General &rarr; VPN &amp; Device Management &rarr; DNS-SHIELD &rarr; Remove Profile</strong>.</div>
+        </div>
+        <div class="notice"><strong>Privacy:</strong> This profile only changes your DNS server. It cannot read messages, access your camera, or track your location.</div>
+      </div>
+    </div>
+
+    <!-- macOS -->
+    <div class="platform-section" id="section-macos">
+      <div class="steps-header"><div class="title">Mac</div><div class="desc">One-click install via Apple Configuration Profile</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Download the profile</div>
+          <a class="dl-btn" href="{{SETUP_BASE}}/macos">Download for Mac</a>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Open the profile</div>
+          <div class="step-desc">Double-click <code>dns-shield.mobileconfig</code>. macOS opens <strong>System Settings &rarr; Privacy &amp; Security &rarr; Profiles</strong> automatically.</div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Click Install</div>
+          <div class="step-desc">Enter your Mac password if prompted. Done.</div>
+        </div></div>
+        <div class="revert">
+          <div class="revert-title">Remove / Revert to Default</div>
+          <div class="step-desc"><strong>System Settings &rarr; Privacy &amp; Security &rarr; Profiles &rarr; DNS-SHIELD &rarr; Remove</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Windows -->
+    <div class="platform-section" id="section-windows">
+      <div class="steps-header"><div class="title">Windows</div><div class="desc">PowerShell script — sets DNS on all network adapters</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Download the setup script</div>
+          <a class="dl-btn" href="{{SETUP_BASE}}/windows">Download dns-shield-setup.ps1</a>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Run as Administrator</div>
+          <div class="step-desc">Right-click the file &rarr; <strong>Run with PowerShell</strong> &rarr; click <strong>Yes</strong> on the UAC prompt.</div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Done — all adapters configured</div>
+          <div class="step-desc">DNS-SHIELD is active on Wi-Fi and Ethernet. No restart required.</div>
+        </div></div>
+        <div class="revert">
+          <div class="revert-title">Remove / Revert to Default</div>
+          <a class="dl-btn dl-btn-secondary" href="{{SETUP_BASE}}/windows-remove">Download dns-shield-remove.ps1</a>
+          <div class="step-desc" style="margin-top:0.5rem">Run the same way. DNS returns to automatic.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android -->
+    <div class="platform-section" id="section-android">
+      <div class="steps-header"><div class="title">Android</div><div class="desc">Private DNS — built into Android 9 and later</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Copy this hostname</div>
+          <div class="copy-field">
+            <div class="copy-field-value">{{HOST}}</div>
+            <button class="copy-field-btn" onclick="copyText(this, '{{HOST}}')">Copy</button>
+          </div>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Open Android Settings</div>
+          <div class="step-desc"><strong>Settings &rarr; Network &amp; Internet &rarr; Private DNS</strong>.<br>On Samsung: <strong>Settings &rarr; Connections &rarr; More connection settings &rarr; Private DNS</strong>.</div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Select hostname and paste</div>
+          <div class="step-desc">Tap <strong>Private DNS provider hostname</strong>, paste, and tap <strong>Save</strong>.</div>
+        </div></div>
+        <div class="revert">
+          <div class="revert-title">Remove / Revert to Default</div>
+          <div class="step-desc">Go back to <strong>Settings &rarr; Network &rarr; Private DNS</strong> and select <strong>Automatic</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linux -->
+    <div class="platform-section" id="section-linux">
+      <div class="steps-header"><div class="title">Linux</div><div class="desc">Shell script — supports systemd-resolved, NetworkManager, resolv.conf</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Download the setup script</div>
+          <a class="dl-btn" href="{{SETUP_BASE}}/linux">Download dns-shield-setup.sh</a>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Run the script</div>
+          <div class="copy-field" style="margin-top:0.4rem">
+            <div class="copy-field-value">sudo bash dns-shield-setup.sh</div>
+            <button class="copy-field-btn" onclick="copyText(this, 'sudo bash dns-shield-setup.sh')">Copy</button>
+          </div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Done — verified automatically</div>
+          <div class="step-desc">Script auto-detects your DNS system and confirms the connection.</div>
+        </div></div>
+        <div class="revert">
+          <div class="revert-title">Remove / Revert to Default</div>
+          <a class="dl-btn dl-btn-secondary" href="{{SETUP_BASE}}/linux-remove">Download dns-shield-remove.sh</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Router -->
+    <div class="platform-section" id="section-router">
+      <div class="steps-header"><div class="title">Home Router</div><div class="desc">Protects every device on your network</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Log into your router</div>
+          <div class="step-desc">Open a browser and go to <strong>192.168.1.1</strong> or <strong>192.168.0.1</strong>.</div>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Find DNS settings</div>
+          <div class="step-desc">Look for DHCP Settings, LAN Settings, or DNS Server.</div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Set the DNS servers</div>
+          <div class="step-desc">Primary DNS:</div>
+          <div class="copy-field">
+            <div class="copy-field-value">{{IP}}</div>
+            <button class="copy-field-btn" onclick="copyText(this, '{{IP}}')">Copy</button>
+          </div>
+          <div class="step-desc" style="margin-top:0.5rem">Secondary DNS:</div>
+          <div class="copy-field">
+            <div class="copy-field-value">9.9.9.9</div>
+            <button class="copy-field-btn" onclick="copyText(this, '9.9.9.9')">Copy</button>
+          </div>
+        </div></div>
+        <div class="step"><div class="step-num">4</div><div>
+          <div class="step-title">Save and restart router</div>
+          <div class="step-desc">Every device on your network is now protected.</div>
+        </div></div>
+        <div class="revert">
+          <div class="revert-title">Remove / Revert to Default</div>
+          <div class="step-desc">Set DNS back to <strong>Automatic</strong> in your router settings.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  function showPlatform(id, btn) {
+    var sections = document.querySelectorAll('.platform-section');
+    for (var i = 0; i < sections.length; i++) sections[i].classList.remove('active');
+    var btns = document.querySelectorAll('.platform-btn');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+    document.getElementById('section-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function copyText(btn, text) {
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.style.color = 'var(--green)';
+      setTimeout(function() { btn.textContent = orig; btn.style.color = ''; }, 1800);
+    });
+  }
+</script>
+</body>
+</html>
