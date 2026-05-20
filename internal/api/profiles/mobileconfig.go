@@ -7,7 +7,7 @@ import (
 
 // MobileConfig generates an Apple .mobileconfig profile for iOS and macOS.
 // When user opens this file on iPhone/iPad/Mac → Settings asks to install → DNS set automatically.
-func MobileConfig(serverHost, serverIP, dohURL string) string {
+func MobileConfig(_, serverIP, dohURL string) string {
 	uuid1 := generateUUID()
 	uuid2 := generateUUID()
 	uuid3 := generateUUID()

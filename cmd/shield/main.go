@@ -16,8 +16,11 @@ import (
 )
 
 func main() {
-	log, _ := zap.NewProduction()
-	defer log.Sync()
+	log, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+	defer func() { _ = log.Sync() }()
 
 	cfg, err := config.Load("configs/shield.yaml")
 	if err != nil {
@@ -49,7 +52,6 @@ func main() {
 		}
 	}()
 
-	// Pass upstreams to API server so DoH handler can forward queries
 	srv := api.New(cfg.API, bl, fe, m, log, cfg.Resolver.Upstreams)
 	go func() {
 		if err := srv.Start(); err != nil {

@@ -107,5 +107,7 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Shutdown() {
-	s.app.Shutdown()
+	if err := s.app.Shutdown(); err != nil {
+		_ = err
+	}
 }

@@ -58,7 +58,6 @@ func (r *Resolver) ListenAndServe(ctx context.Context) error {
 	go func() { errCh <- r.udpServer.ListenAndServe() }()
 	go func() { errCh <- r.tcpServer.ListenAndServe() }()
 
-	// DoT — optional, only if TLS cert is configured
 	if r.cfg.DoTAddr != "" && r.cfg.TLSCert != "" {
 		tlsCfg, err := loadTLS(r.cfg.TLSCert, r.cfg.TLSKey)
 		if err != nil {
@@ -93,7 +92,9 @@ func (r *Resolver) handleQuery(w dns.ResponseWriter, req *dns.Msg) {
 	if len(req.Question) == 0 {
 		resp := new(dns.Msg)
 		resp.SetRcode(req, dns.RcodeFormatError)
-		w.WriteMsg(resp)
+		if err := w.WriteMsg(resp); err != nil {
+			r.log.Error("write failed", zap.Error(err))
+		}
 		return
 	}
 
@@ -116,10 +117,11 @@ func (r *Resolver) handleQuery(w dns.ResponseWriter, req *dns.Msg) {
 	}
 
 	r.metrics.RecordLatency(time.Since(start))
-	w.WriteMsg(resp)
+	if err := w.WriteMsg(resp); err != nil {
+		r.log.Error("write failed", zap.Error(err))
+	}
 }
 
-// buildBlockResponse returns a spoofed A record or NXDOMAIN for blocked queries.
 func (r *Resolver) buildBlockResponse(req *dns.Msg, blockIP string) *dns.Msg {
 	resp := new(dns.Msg)
 	resp.SetReply(req)
@@ -141,12 +143,10 @@ func (r *Resolver) buildBlockResponse(req *dns.Msg, blockIP string) *dns.Msg {
 			return resp
 		}
 	}
-	// Default: NXDOMAIN
 	resp.SetRcode(req, dns.RcodeNameError)
 	return resp
 }
 
-// forward sends the query to one of the configured upstream resolvers.
 func (r *Resolver) forward(req *dns.Msg) (*dns.Msg, error) {
 	c := &dns.Client{Timeout: 3 * time.Second}
 	var lastErr error
@@ -162,12 +162,18 @@ func (r *Resolver) forward(req *dns.Msg) (*dns.Msg, error) {
 
 func (r *Resolver) Shutdown() {
 	if r.udpServer != nil {
-		r.udpServer.Shutdown()
+		if err := r.udpServer.Shutdown(); err != nil {
+			_ = err
+		}
 	}
 	if r.tcpServer != nil {
-		r.tcpServer.Shutdown()
+		if err := r.tcpServer.Shutdown(); err != nil {
+			_ = err
+		}
 	}
 	if r.dotServer != nil {
-		r.dotServer.Shutdown()
+		if err := r.dotServer.Shutdown(); err != nil {
+			_ = err
+		}
 	}
 }

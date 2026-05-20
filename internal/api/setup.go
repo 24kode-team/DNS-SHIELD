@@ -13,7 +13,7 @@ func (s *Server) registerSetup(app *fiber.App) {
 
 	// ── iOS / macOS — .mobileconfig (one tap install) ────────────────────
 	app.Get("/setup/ios", s.handleSetupIOS)
-	app.Get("/setup/macos", s.handleSetupMacOS)   // same file, different name
+	app.Get("/setup/macos", s.handleSetupMacOS)    // same file, different name
 	app.Get("/setup/ios-dot", s.handleSetupIOSDoT) // DoT variant
 
 	// ── Windows — PowerShell scripts ──────────────────────────────────────
