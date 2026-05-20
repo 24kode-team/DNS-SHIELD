@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNS-SHIELD Dashboard</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #0099cc;
+    --green: #00ff88;
+    --red: #ff4757;
+    --yellow: #ffa502;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --font: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem; font-weight: 700; }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .header-right { display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; color: var(--muted); }
+  .refresh-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 0.35rem 0.9rem; border-radius: 6px;
+    cursor: pointer; font-size: 0.8rem; transition: all 0.15s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    position: relative; overflow: hidden; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--accent-color, var(--accent));
+  }
+  .card-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.5rem; }
+  .card-value { font-size: 2rem; font-weight: 700; font-family: var(--font); color: var(--card-color, var(--text)); line-height: 1; }
+  .card-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  @media (max-width: 768px) { .grid2 { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel-header {
+    padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+    font-size: 0.85rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-body { padding: 1.25rem 1.5rem; }
+  .cat-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .cat-label { width: 90px; font-size: 0.78rem; color: var(--muted); text-transform: capitalize; flex-shrink: 0; }
+  .cat-bar-wrap { flex: 1; background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
+  .cat-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.6s ease; }
+  .cat-count { font-family: var(--font); font-size: 0.78rem; color: var(--accent); width: 60px; text-align: right; }
+  .lat-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; font-size: 0.8rem; }
+  .lat-label { width: 70px; color: var(--muted); }
+  .lat-bar-wrap { flex: 1; background: var(--surface2); border-radius: 4px; height: 6px; }
+  .lat-bar { height: 100%; border-radius: 4px; background: var(--green); transition: width 0.6s; }
+  .lat-count { width: 50px; text-align: right; color: var(--muted); font-family: var(--font); font-size: 0.75rem; }
+  .config-box {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.25rem; margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .config-box-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.25rem; }
+  .config-box-value { font-family: var(--font); font-size: 0.85rem; color: var(--accent); }
+  .copy-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    padding: 0.3rem 0.7rem; border-radius: 5px; cursor: pointer;
+    font-size: 0.75rem; flex-shrink: 0; transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab {
+    padding: 0.4rem 1rem; border-radius: 6px; font-size: 0.8rem;
+    cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); transition: all 0.15s;
+  }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .instructions { display: none; }
+  .instructions.active { display: block; }
+  pre {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem; font-family: var(--font); font-size: 0.8rem;
+    color: var(--accent); overflow-x: auto; line-height: 1.6;
+  }
+  .comment { color: var(--muted); }
+  .loading { display: flex; align-items: center; justify-content: center; height: 120px; color: var(--muted); font-size: 0.85rem; gap: 0.5rem; }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-msg { color: var(--red); font-size: 0.82rem; padding: 1rem; text-align: center; }
+  .last-updated { font-size: 0.72rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">S</div>
+    DNS-SHIELD
+  </div>
+  <div class="header-right">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Connecting...</span>
+    <button class="refresh-btn" onclick="loadAll()">Refresh</button>
+  </div>
+</header>
+
+<main>
+  <div class="cards">
+    <div class="card" style="--accent-color: var(--accent)">
+      <div class="card-label">Total Queries</div>
+      <div class="card-value" id="totalQueries">-</div>
+      <div class="card-sub">since last restart</div>
+    </div>
+    <div class="card" style="--accent-color: var(--red); --card-color: var(--red)">
+      <div class="card-label">Blocked</div>
+      <div class="card-value" id="blockedQueries">-</div>
+      <div class="card-sub" id="blockedPct">- % of total</div>
+    </div>
+    <div class="card" style="--accent-color: var(--green); --card-color: var(--green)">
+      <div class="card-label">Allowed</div>
+      <div class="card-value" id="allowedQueries">-</div>
+      <div class="card-sub">clean traffic</div>
+    </div>
+    <div class="card" style="--accent-color: var(--yellow)">
+      <div class="card-label">Blocklist Entries</div>
+      <div class="card-value" id="totalEntries">-</div>
+      <div class="card-sub">domains indexed</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-header">
+        <span>Blocks by Category</span>
+        <span class="last-updated" id="lastUpdated"></span>
+      </div>
+      <div class="panel-body" id="categoryBars">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">Response Latency</div>
+      <div class="panel-body" id="latencyBars">
+        <div class="loading"><div class="spinner"></div> Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:1.5rem">
+    <div class="panel-header">Quick Setup</div>
+    <div class="panel-body">
+      <div class="config-box">
+        <div>
+          <div class="config-box-label">DNS Server (UDP/TCP)</div>
+          <div class="config-box-value" id="dnsAddr">Loading...</div>
+        </div>
+        <button class="copy-btn" onclick="copyById('dnsAddr', this)">Copy</button>
+      </div>
+      <div class="config-box">
+        <div>
+          <div class="config-box-label">DNS-over-HTTPS (DoH)</div>
+          <div class="config-box-value" id="dohAddr">Loading...</div>
+        </div>
+        <button class="copy-btn" onclick="copyById('dohAddr', this)">Copy</button>
+      </div>
+      <div class="config-box">
+        <div>
+          <div class="config-box-label">DNS-over-TLS (DoT)</div>
+          <div class="config-box-value" id="dotAddr">Loading...</div>
+        </div>
+        <button class="copy-btn" onclick="copyById('dotAddr', this)">Copy</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('mac', event)">macOS</button>
+        <button class="tab" onclick="showTab('windows', event)">Windows</button>
+        <button class="tab" onclick="showTab('linux', event)">Linux</button>
+        <button class="tab" onclick="showTab('router', event)">Router</button>
+        <button class="tab" onclick="showTab('android', event)">Android</button>
+        <button class="tab" onclick="showTab('ios', event)">iOS</button>
+      </div>
+
+      <div class="instructions active" id="tab-mac">
+        <pre><span class="comment"># macOS: System Settings -> Wi-Fi -> Details -> DNS</span>
+sudo networksetup -setdnsservers Wi-Fi <span id="mac-dns">YOUR_SERVER_IP</span></pre>
+      </div>
+      <div class="instructions" id="tab-windows">
+        <pre><span class="comment"># Windows PowerShell (Admin):</span>
+Set-DnsClientServerAddress -InterfaceAlias "Wi-Fi" -ServerAddresses ("<span id="win-dns">YOUR_SERVER_IP</span>")</pre>
+      </div>
+      <div class="instructions" id="tab-linux">
+        <pre><span class="comment"># Linux - systemd-resolved:</span>
+echo "nameserver <span id="lin-dns">YOUR_SERVER_IP</span>" | sudo tee /etc/resolv.conf</pre>
+      </div>
+      <div class="instructions" id="tab-router">
+        <pre><span class="comment"># Router: DHCP Settings -> Primary DNS Server</span>
+Primary DNS:   <span id="router-dns">YOUR_SERVER_IP</span>
+Secondary DNS: 9.9.9.9</pre>
+      </div>
+      <div class="instructions" id="tab-android">
+        <pre><span class="comment"># Android 9+: Settings -> Network -> Private DNS -> Custom hostname</span>
+Hostname: <span id="android-dot">YOUR_SERVER_HOSTNAME</span></pre>
+      </div>
+      <div class="instructions" id="tab-ios">
+        <pre><span class="comment"># iOS: Download the .mobileconfig profile from /setup/ios</span>
+DNS Server: <span id="ios-dns">YOUR_SERVER_IP</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Blocklist Feed Stats</div>
+    <div class="panel-body" id="feedStats">
+      <div class="loading"><div class="spinner"></div> Loading...</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  var HOST = window.location.hostname;
+  var BASE = window.location.origin;
+
+  document.getElementById('dnsAddr').textContent = HOST + ':53';
+  document.getElementById('dohAddr').textContent = BASE + '/dns-query';
+  document.getElementById('dotAddr').textContent = HOST + ':853';
+
+  var ipIds = ['mac-dns','win-dns','lin-dns','router-dns','android-dns','ios-dns'];
+  for (var i = 0; i < ipIds.length; i++) {
+    var el = document.getElementById(ipIds[i]);
+    if (el) el.textContent = HOST;
+  }
+  var dotEl = document.getElementById('android-dot');
+  if (dotEl) dotEl.textContent = HOST;
+
+  function fetchJSON(url) {
+    return fetch(url).then(function(r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    });
+  }
+
+  function fmt(n) {
+    if (n === undefined || n === null) return '-';
+    if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  function renderMetrics(data) {
+    document.getElementById('totalQueries').textContent = fmt(data.total_queries);
+    document.getElementById('blockedQueries').textContent = fmt(data.blocked_queries);
+    document.getElementById('allowedQueries').textContent = fmt(data.allowed_queries);
+
+    var pct = data.total_queries > 0
+      ? ((data.blocked_queries / data.total_queries) * 100).toFixed(1)
+      : 0;
+    document.getElementById('blockedPct').textContent = pct + '% of total';
+
+    var cats = data.blocked_by_category || {};
+    var catOrder = ['phishing','malware','scam','porn','gambling','predatory','deepfake','sextortion'];
+    var maxCat = 1;
+    for (var k in cats) { if (cats[k] > maxCat) maxCat = cats[k]; }
+
+    var catHtml = '';
+    for (var ci = 0; ci < catOrder.length; ci++) {
+      var cat = catOrder[ci];
+      var count = cats[cat] || 0;
+      var p = ((count / maxCat) * 100).toFixed(1);
+      catHtml += '<div class="cat-row"><div class="cat-label">' + cat + '</div>' +
+        '<div class="cat-bar-wrap"><div class="cat-bar" style="width:' + p + '%"></div></div>' +
+        '<div class="cat-count">' + fmt(count) + '</div></div>';
+    }
+    document.getElementById('categoryBars').innerHTML = catHtml || '<div class="loading">No blocks yet</div>';
+
+    var lat = data.latency_ms || {};
+    var latData = [
+      { label: '<1ms',  val: lat.under_1ms  || 0 },
+      { label: '<5ms',  val: lat.under_5ms  || 0 },
+      { label: '<10ms', val: lat.under_10ms || 0 },
+      { label: '<50ms', val: lat.under_50ms || 0 },
+      { label: '50ms+', val: lat.over_50ms  || 0 },
+    ];
+    var maxLat = 1;
+    for (var li = 0; li < latData.length; li++) { if (latData[li].val > maxLat) maxLat = latData[li].val; }
+
+    var latHtml = '';
+    for (var li = 0; li < latData.length; li++) {
+      var d = latData[li];
+      var lp = ((d.val / maxLat) * 100).toFixed(1);
+      latHtml += '<div class="lat-row"><div class="lat-label">' + d.label + '</div>' +
+        '<div class="lat-bar-wrap"><div class="lat-bar" style="width:' + lp + '%"></div></div>' +
+        '<div class="lat-count">' + fmt(d.val) + '</div></div>';
+    }
+    document.getElementById('latencyBars').innerHTML = latHtml;
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  }
+
+  function renderFeedStats(data) {
+    var total = 0;
+    var entries = [];
+    for (var k in data) { total += data[k]; entries.push([k, data[k]]); }
+    document.getElementById('totalEntries').textContent = fmt(total);
+    entries.sort(function(a, b) { return b[1] - a[1]; });
+    var maxVal = entries.length > 0 ? entries[0][1] : 1;
+    var html = '';
+    for (var i = 0; i < entries.length; i++) {
+      var cat = entries[i][0], count = entries[i][1];
+      var p = ((count / maxVal) * 100).toFixed(1);
+      html += '<div class="cat-row"><div class="cat-label">' + cat + '</div>' +
+        '<div class="cat-bar-wrap"><div class="cat-bar" style="width:' + p + '%"></div></div>' +
+        '<div class="cat-count">' + fmt(count) + ' entries</div></div>';
+    }
+    document.getElementById('feedStats').innerHTML = html || '<div class="loading">No data</div>';
+  }
+
+  function setStatus(ok) {
+    var dot = document.getElementById('statusDot');
+    var txt = document.getElementById('statusText');
+    dot.style.background = ok ? 'var(--green)' : 'var(--red)';
+    dot.style.boxShadow = ok ? '0 0 8px var(--green)' : '0 0 8px var(--red)';
+    txt.textContent = ok ? 'Online' : 'Unreachable';
+  }
+
+  function loadAll() {
+    Promise.all([
+      fetchJSON('/metrics'),
+      fetchJSON('/admin/blocklist/stats').catch(function() { return {}; })
+    ]).then(function(results) {
+      renderMetrics(results[0]);
+      renderFeedStats(results[1]);
+      setStatus(true);
+    }).catch(function() {
+      setStatus(false);
+      document.getElementById('categoryBars').innerHTML = '<div class="error-msg">Could not reach DNS-SHIELD API</div>';
+    });
+  }
+
+  function showTab(id, ev) {
+    var instructions = document.querySelectorAll('.instructions');
+    for (var i = 0; i < instructions.length; i++) instructions[i].classList.remove('active');
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+    document.getElementById('tab-' + id).classList.add('active');
+    if (ev && ev.target) ev.target.classList.add('active');
+  }
+
+  function copyById(id, btn) {
+    var text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.style.color = 'var(--green)';
+      setTimeout(function() { btn.textContent = orig; btn.style.color = ''; }, 1500);
+    });
+  }
+
+  loadAll();
+  setInterval(loadAll, 10000);
+</script>
+</body>
+</html>
