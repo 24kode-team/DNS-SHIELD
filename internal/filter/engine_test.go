@@ -3,12 +3,12 @@ package filter
 import (
 	"testing"
 
+	"github.com/24kode-team/DNS-SHIELD/internal/config"
 	"go.uber.org/zap"
 )
 
-// mockBlocker simulates blocklist.Manager
 type mockBlocker struct {
-	blocked map[string]string // domain -> category
+	blocked map[string]string
 }
 
 func (m *mockBlocker) IsBlocked(domain string) (bool, string) {
@@ -17,10 +17,8 @@ func (m *mockBlocker) IsBlocked(domain string) (bool, string) {
 }
 
 func newTestEngine(blocked map[string]string, allowlist []string) *Engine {
-	log, _ := zap.NewNop(), struct{}{}
-	_ = log
 	logger := zap.NewNop()
-	cfg := FilterConfig{
+	cfg := config.FilterConfig{
 		BlockPage: "0.0.0.0",
 		Allowlist: allowlist,
 	}
@@ -53,8 +51,8 @@ func TestAllowDecision(t *testing.T) {
 
 func TestAllowlistOverridesBlock(t *testing.T) {
 	engine := newTestEngine(
-		map[string]string{"trusted.ca": "malware"}, // in blocklist
-		[]string{"trusted.ca"},                      // but also in allowlist
+		map[string]string{"trusted.ca": "malware"},
+		[]string{"trusted.ca"},
 	)
 
 	d := engine.Evaluate("trusted.ca")
@@ -64,8 +62,6 @@ func TestAllowlistOverridesBlock(t *testing.T) {
 }
 
 func TestSubdomainBlock(t *testing.T) {
-	// sub.evil.com should be blocked if evil.com is in blocklist
-	// (handled by blocklist.Manager — here we just test filter pass-through)
 	engine := newTestEngine(map[string]string{
 		"sub.evil.com": "phishing",
 	}, nil)

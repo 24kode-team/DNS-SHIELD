@@ -1,7 +1,6 @@
 package blocklist
 
 import (
-	"bufio"
 	"strings"
 	"testing"
 )
@@ -70,6 +69,3 @@ func TestIsValidDomain(t *testing.T) {
 		}
 	}
 }
-
-// Silence unused import
-var _ = bufio.NewScanner
